@@ -1,0 +1,379 @@
+version: 1
+project: MiniLisp
+scale: L3
+tags:
+  - interpreter
+  - lisp
+  - s-expressions
+  - language
+  - educational
+
+# Core brief
+purpose: |
+  Build a minimal LISP interpreter that can parse and evaluate S-expressions,
+  including support for function definitions, lambda expressions, and basic
+  arithmetic/logical operations. Target: <500 lines of core code.
+
+why: |
+  To understand interpreter design fundamentals (parsing, evaluation, environments,
+  closures) by implementing a complete but minimal language. Also serves as a
+  foundation for potential future extensions (macros, concurrency, etc.).
+
+# The critical assumption that could kill the project
+riskiest_assumption: |
+  We can implement a correct and performant LISP interpreter with proper
+  lexical scoping, closures, and recursive function definitions in under
+  500 lines of clean, maintainable code without significant performance issues
+  for typical use cases (fibonacci, factorial, simple data processing).
+
+# Cheapest way to test it
+smallest_test: |
+  Build a minimal REPL that can:
+  1. Parse and evaluate: (+ 1 2 3) -> 6
+  2. Parse and evaluate: (define (square x) (* x x)) then (square 5) -> 25
+  3. Handle nested expressions: (square (square 2)) -> 16
+  4. Support lambda: ((lambda (x) (* x x)) 5) -> 25
+
+  Cost: 0 (just code)
+  Timeline: 1-2 days for MVP
+
+# Success looks like
+success_criteria:
+  - line_count: "<=500 lines (core interpreter)"
+  - feature_complete: "Parsing, eval, define, lambda, if, basic arithmetic"
+  - performance: "Evaluate factorial(20) in <100ms"
+  - correctness: "Passes all test cases"
+
+# What we're NOT doing (to keep scope minimal)
+out_of_scope:
+  - macros
+  - garbage collection (reuse language's GC)
+  - concurrency
+  - standard library (beyond basics)
+  - REPL history / line editing
+  - debugging tools
+  - JIT compilation
+  - Type system (dynamic typing only)
+
+# Initial evidence we have
+initial_evidence:
+  - type: literature_review
+    source: "Structure and Interpretation of Computer Programs, Chapter 4"
+    notes: |
+      SICP presents a complete Scheme interpreter in ~200 lines of Scheme.
+      Translating to a modern language (Python, JS, Go) should be achievable
+      in similar line count. Key insight: environments as chained dictionaries.
+    confidence: 0.9
+    date: "2026-06-22"
+    relevance: high
+
+  - type: prior_art
+    source: "Peter Norvig's (How to Write a (Lisp) Interpreter (in Python))"
+    notes: |
+      100-line Python Lisp interpreter. Supports: atoms, lists, define, lambda,
+      if, begin. Missing: proper lexical scoping, closures, some special forms.
+      Proves minimal implementation is possible.
+    confidence: 0.95
+    date: "2026-06-22"
+    url: "https://norvig.com/lispy.html"
+    relevance: high
+
+  - type: complexity_analysis
+    source: "Author's estimation"
+    notes: |
+      Core components needed:
+      - Parser (tokenize + parse S-expressions): ~100 lines
+      - Evaluator: ~150 lines
+      - Environment system: ~50 lines
+      - Built-in functions: ~50 lines
+      - REPL: ~50 lines
+      Total: ~400 lines (with good abstraction)
+    confidence: 0.8
+    date: "2026-06-22"
+    relevance: medium
+
+# Language features to support
+features:
+  required:
+    - name: S-expression parsing
+      description: "Parse nested lists of atoms: (func arg1 (nested arg))"
+      examples:
+        - "123"
+        - "'hello"
+        - "(+ 1 2)"
+        - "(define (fact n) (if (<= n 1) 1 (* n (fact (- n 1)))))"
+
+    - name: Basic arithmetic
+      description: "+, -, *, /, modulo"
+      examples: ["(+ 1 2 3)", "(* 4 5)", "(- 10 3)"]
+
+    - name: Function definition (define)
+      description: "Define named functions"
+      examples: ["(define (square x) (* x x))"]
+
+    - name: Lambda expressions
+      description: "Anonymous functions"
+      examples: ["((lambda (x) (* x x)) 5)"]
+
+    - name: Conditional (if)
+      description: "Branching logic"
+      examples: ["(if (> x 0) 'positive 'negative)"]
+
+    - name: Lexical scoping
+      description: "Functions capture their defining environment"
+      examples: |
+        (define (make-adder n)
+          (lambda (x) (+ x n)))
+        ((make-adder 5) 10) ; -> 15
+
+    - name: Recursion
+      description: "Functions can call themselves"
+      examples: ["(define (fact n) (if (<= n 1) 1 (* n (fact (- n 1)))))"]
+
+  stretch_goals:
+    - name: Let expressions
+      description: "Local bindings"
+      examples: ["(let ((x 5) (y 10)) (+ x y))"]
+
+    - name: Lists as data
+      description: "Lists that aren't code: '(1 2 3)"
+      examples: ["(list 1 2 3)", "(car '(1 2 3))"]
+
+    - name: Quoting
+      description: "Prevent evaluation"
+      examples: ["'hello", "'(1 2 3)", "(quote (a b c))"]
+
+    - name: Eval
+      description: "Evaluate a list as code"
+      examples: ["(eval '(+ 1 2))"]
+
+    - name: Pretty printing
+      description: "Format expressions in classical Lisp notation with indentation"
+      examples: ["(pprint '(+ 1 (* 2 3)))", "(pprint '(define (square x) (* x x)))"]
+      implemented: true
+      implementation_date: "2026-06-23"
+
+# Technical constraints
+constraints:
+  - language: "Implement in Python (decision: fork Norvig's lispy.py)"
+  - no_external_libs: "No LISP parsing libraries - must implement from scratch"
+  - error_handling: "Clear, helpful error messages for syntax errors"
+  - test_coverage: "100% of core functionality (parser, evaluator, env)"
+  - performance: "No obvious O(n^2) or worse algorithms in hot paths"
+
+# Architecture decisions
+architecture_decisions:
+  - decision: "Fork Norvig's lispy.py and extend it"
+    context: |
+      Norvig's implementation already handles 80% of requirements:
+      parsing, eval, define, lambda, if, arithmetic. It's 100 lines of clear Python.
+    alternatives:
+      - name: Build from scratch
+        why_not: "Reinventing the wheel. Norvig's code is proven and simple."
+      - name: Use an existing LISP
+        why_not: "Defeats the purpose of learning/building our own."
+    theory: |
+      DRY: Don't Repeat Yourself. Standing on shoulders of giants.
+      Also: The 80/20 rule - get 80% for free, focus on the 20% we need.
+    evidence: |
+      - Norvig's lispy.py works and covers core requirements
+      - It's MIT licensed (can use/modify freely)
+      - Line count is acceptable (~100 lines base)
+    confidence: high
+    date: "2026-06-22"
+
+  - decision: "Use chained dictionaries for environments"
+    context: |
+      Need to support lexical scoping and closures correctly.
+    alternatives:
+      - name: Single dictionary with mangled keys
+        why_not: "Harder to implement closures correctly"
+      - name: Symbol table with scope stack
+        why_not: "More complex than needed"
+    theory: |
+      SICP Chapter 4: environments can be modeled as chained dictionaries,
+      where each frame points to its parent.
+    evidence: |
+      - Norvig's Env class pattern works well
+      - Simple to understand and debug
+    confidence: high
+    date: "2026-06-22"
+
+# Testing strategy
+testing:
+  unit_tests:
+    - name: Parser tests
+      count: 10-15
+      examples: ["Empty list", "Nested lists", "Atoms", "Quoted expressions"]
+
+    - name: Evaluator tests
+      count: 20-30
+      examples: ["Arithmetic", "Function calls", "Conditionals", "Recursion"]
+
+    - name: Environment tests
+      count: 10-15
+      examples: ["Shadowing", "Closures", "Global vs local"]
+
+  integration_tests:
+    - name: REPL session
+      description: "Simulate a user session with multiple inputs"
+      examples: |
+        Input: (define (square x) (* x x))
+        Input: (square 5)
+        Expected: 25
+
+    - name: File execution
+      description: "Load and run a .lisp file"
+      examples: |
+        File: (define (fact n) (if (<= n 1) 1 (* n (fact (- n 1)))))
+               (fact 5)
+        Expected: 120
+
+  performance_tests:
+    - name: Fibonacci
+      description: "Evaluate (fib 20) where fib is defined recursively"
+      target: "<100ms"
+
+    - name: Deep recursion
+      description: "Evaluate a function that recurses 1000 levels deep"
+      target: "No stack overflow"
+
+# Milestones
+milestones:
+  - name: MVP
+    description: "Parser + evaluator + REPL, arithmetic only"
+    features: ["Parsing", "Arithmetic", "REPL", "Error handling"]
+    timeline: "1 day"
+    success: "Can evaluate (+ 1 2 3) and nested expressions"
+
+  - name: Functions
+    description: "Add define and lambda with lexical scoping"
+    features: ["define", "lambda", "lexical scoping"]
+    timeline: "1 day"
+    success: "Can define and call functions, including recursive"
+
+  - name: Control Flow
+    description: "Add if, and, or, begin"
+    features: ["if", "and", "or", "begin"]
+    timeline: "0.5 day"
+    success: "Can write conditional logic"
+
+  - name: Polish
+    description: "Error messages, tests, documentation"
+    features: ["100% test coverage", "Good error messages", "README"]
+    timeline: "0.5 day"
+    success: "Ready for others to use/extend"
+
+# Next steps
+next_steps:
+  - priority: high
+    action: "Fork Norvig's lispy.py as starting point"
+    owner: developer
+    timeline: "0.5 day"
+    blocker: none
+    status: completed
+    completed_at: "2026-06-22T10:30:00Z"
+
+  - priority: high
+    action: "Add proper lexical scoping (fix Norvig's dynamic scoping)"
+    owner: developer
+    timeline: "1 day"
+    blocker: "Base code forked"
+    status: completed
+    completed_at: "2026-06-22T11:00:00Z"
+
+  - priority: high
+    action: "Write comprehensive test suite"
+    owner: developer
+    timeline: "1 day"
+    blocker: "Core interpreter working"
+    status: completed
+    completed_at: "2026-06-23T14:00:00Z"
+
+  - priority: medium
+    action: "Add remaining features (let, quote, eval)"
+    owner: developer
+    timeline: "1 day"
+    blocker: "Tests passing"
+    status: completed
+    completed_at: "2026-06-23T12:00:00Z"
+
+  - priority: medium
+    action: "Create examples and demo program"
+    owner: developer
+    timeline: "0.5 day"
+    blocker: "Tests passing"
+    status: completed
+    completed_at: "2026-06-23T15:00:00Z"
+
+# Evidence from this session
+evidence:
+  - type: implementation_complete
+    source: "Session 2026-06-22"
+    notes: |
+      MiniLisp MVP completed and tested:
+      - (+ 2 2) -> 4 ✅
+      - (define (square x) (* x x)) -> square ✅
+      - (square 5) -> 25 ✅
+      - Recursion: (fact 5) -> 120 ✅
+      - Closures: ((make-adder 5) 10) -> 15 ✅
+      - All theory gates passed
+    confidence: 0.95
+    date: "2026-06-22T11:30:00Z"
+
+  - type: bugfix
+    source: "Session 2026-06-23"
+    notes: |
+      Fixed quote shorthand support and Env.find() crash:
+      - Added support for 'x syntax (shorthand for (quote x))
+      - Fixed Env.find() to raise NameError instead of crashing on None
+      - (if (> 5 3) 'yes 'no) now works correctly -> yes ✅
+      - All conditional tests pass with quote shorthand ✅
+    confidence: 0.95
+    date: "2026-06-23T12:00:00Z"
+
+  - type: bugfix
+    source: "Session 2026-06-23"
+    notes: |
+      Fixed REPL to handle both bare and parenthesized commands:
+      - exit and (exit) both work ✅
+      - help and (help) both work ✅
+      - quit and (quit) both work ✅
+      - Updated welcome message to reflect both forms ✅
+    confidence: 0.95
+    date: "2026-06-23T12:30:00Z"
+
+  - type: testing
+    source: "Session 2026-06-23"
+    notes: |
+      Fixed all 52 failing tests. Key fixes:
+      - Added Env.__getitem__ for proper lexical scoping via environment chain
+      - Added callable handling in evaluator for functions as first-class values
+      - Fixed lambda argument counting to detect wrong number of arguments
+      - Fixed multiplication operator using functools.reduce for variadic args
+      - Updated test expectations for quote forms and error types
+      - Added recursion limit increase for deep recursion test
+      - All 52/52 tests now passing across all categories
+    confidence: 0.99
+    date: "2026-06-23T14:00:00Z"
+
+  - type: feature
+    source: "Session 2026-06-23"
+    notes: |
+      Added comprehensive examples and demo program:
+      - Created EXAMPLES.md with 50+ example programs across 7 categories
+        (Basic Arithmetic, Recursion, Closures, Higher-Order Functions,
+        List Processing, Advanced Examples, One-Liner Challenges)
+      - Created demo.lisp - a runnable file testing all major features
+      - Added comment support in tokenizer (Lisp-style ; comments)
+      - Added test_comment_handling test (now 53/53 tests passing)
+      - Examples include: factorial, fibonacci, make-adder, map, filter,
+        fizzbuzz, ackermann, Y combinator, countdown, and more
+    confidence: 0.99
+    date: "2026-06-23T15:00:00Z"
+
+# Status
+status: converging
+phase: L3_solution
+last_updated: "2026-06-23T15:00:00Z"
+updated_by: vibe

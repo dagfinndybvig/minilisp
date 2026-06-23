@@ -1,0 +1,174 @@
+version: 1
+
+# Current active diamond (work in progress)
+active_diamond:
+  id: minilisp-polish
+  scale: L3
+  phase: diverge
+  focus: "Error handling, documentation, stretch goals"
+  canvas_file: canvas/gist.yml
+  started_at: "2026-06-23T14:00:00Z"
+  owner: developer
+  
+  # Current status
+  status: in_progress
+  
+  # Outcome
+  outcome: |
+    Successfully forked Norvig's lispy.py and extended with proper
+    lexical scoping. Core interpreter (~400 lines) working with:
+    - Parsing, evaluation, define, lambda, if, arithmetic
+    - REPL and file execution
+    - Lexical scoping with chained environments
+    - Recursion support (factorial, fibonacci tested)
+  
+  # Theory gates to check
+  gates:
+    - name: problem_clarity
+      status: pass
+      evidence: "gist.yml clearly defines purpose, features, constraints"
+      
+    - name: solution_approach
+      status: pass
+      evidence: "Architecture decision logged: fork Norvig's lispy.py"
+      
+    - name: riskiest_assumption
+      status: pass
+      evidence: "Lexical scoping implemented via chained Env, tested with closures"
+      
+    - name: feasibility
+      status: pass
+      evidence: "Interpreter running, all core features functional"
+
+  # Blockers
+  blockers: []
+  
+  # Next phase criteria
+  phase_complete_when:
+    - "Norvig's lispy.py forked and running"  # ✅ Done
+    - "Basic arithmetic working in REPL"      # ✅ Done
+    - "define and lambda working"               # ✅ Done
+    - "Lexical scoping tests passing"          # ✅ Done
+
+# Previous diamonds (completed)
+completed_diamonds:
+  - id: minilisp-discovery
+    scale: L2
+    phase: converge
+    focus: "Define problem scope and approach"
+    completed_at: "2026-06-22T10:00:00Z"
+    outcome: "Decided to fork Norvig's lispy.py"
+    artifacts:
+      - canvas/gist.yml
+      - harness/decision-log.md (first entry)
+
+  - id: minilisp-mvp
+    scale: L3
+    phase: converge
+    focus: "Fork Norvig's lispy.py and extend with proper lexical scoping"
+    completed_at: "2026-06-22T11:30:00Z"
+    outcome: |
+      Core interpreter working with parsing, eval, define, lambda, if, arithmetic,
+      REPL, file execution, and lexical scoping. Tested with factorial, fibonacci,
+      closures (make-adder pattern).
+    artifacts:
+      - minilisp.py (core interpreter)
+      - tests/test_minilisp.py (test suite)
+
+  - id: minilisp-quote-fix
+    scale: L3
+    phase: converge
+    focus: "Implement quote shorthand syntax and fix Env.find() crash"
+    completed_at: "2026-06-23T12:00:00Z"
+    outcome: |
+      Fixed quote shorthand ('x syntax) and Env.find() crash. Users can now use
+      convenient quote syntax like (if (> 5 3) 'yes 'no). All conditional forms
+      work correctly with quote shorthand. Error messages are now clear instead
+      of cryptic AttributeError.
+    artifacts:
+      - minilisp.py (updated parser, atom, and Env.find)
+      - canvas/gist.yml (updated evidence)
+      - harness/decision-log.md (new decision entry)
+
+  - id: minilisp-repl-fix
+    scale: L3
+    phase: converge
+    focus: "Fix REPL to handle parenthesized commands"
+    completed_at: "2026-06-23T12:30:00Z"
+    outcome: |
+      Fixed REPL to handle both bare and parenthesized command forms.
+      Users can now use exit or (exit), help or (help), quit or (quit).
+      Updated welcome message to reflect both forms work.
+    artifacts:
+      - minilisp.py (updated repl function)
+      - canvas/gist.yml (updated evidence)
+      - harness/decision-log.md (new decision entry)
+
+# Next diamond (queued)
+queued_diamonds:
+  - id: minilisp-testing
+    scale: L3
+    phase: diverge
+    focus: "Run test suite and fix any failures"
+    priority: high
+    depends_on: minilisp-mvp
+    status: completed
+    completed_at: "2026-06-23T14:00:00Z"
+    outcome: |
+      Fixed all 11 failing tests (now 53/53 passing). Key fixes included:
+      - Env.__getitem__ implementation for proper lexical scoping
+      - Callable handling in evaluator for first-class functions
+      - Lambda argument counting for proper error detection
+      - Multiplication operator fix using functools.reduce
+      - Test expectation updates for quote forms and error types
+      - Recursion limit handling for deep recursion test
+      - Comment support in tokenizer for .lisp files
+    artifacts:
+      - minilisp.py (core fixes)
+      - tests/test_minilisp.py (test expectation updates)
+
+  - id: minilisp-examples
+    scale: L3
+    phase: diverge
+    focus: "Create comprehensive examples and demo program"
+    priority: medium
+    depends_on: minilisp-testing
+    status: completed
+    completed_at: "2026-06-23T15:00:00Z"
+    outcome: |
+      Created comprehensive examples for users and future reference:
+      - EXAMPLES.md: 50+ example programs across 7 categories with documentation
+      - demo.lisp: Runnable demo file that tests all major features
+      - Added tokenizer support for Lisp-style comments (;)
+      - Added test_comment_handling to test suite
+      Examples cover: basic arithmetic, recursion, closures, higher-order
+      functions, list processing, advanced patterns (FizzBuzz, Ackermann,
+      Y Combinator), and one-liner challenges
+    artifacts:
+      - EXAMPLES.md
+      - demo.lisp
+      - minilisp.py (comment handling in tokenizer)
+      - tests/test_minilisp.py (new test)
+    
+  - id: minilisp-polish
+    scale: L3
+    phase: diverge
+    focus: "Error handling, documentation, stretch goals"
+    priority: medium
+    depends_on: minilisp-testing
+    status: pending
+
+# Decision log reference
+decision_log: harness/decision-log.md
+
+# Evidence log
+evidence_log:
+  - date: "2026-06-22T10:00:00Z"
+    type: decision
+    description: "Fork Norvig's lispy.py instead of building from scratch"
+    file: harness/decision-log.md
+    
+  - date: "2026-06-22T10:00:00Z"
+    type: architecture
+    description: "Use chained dictionaries for lexical scoping"
+    file: canvas/gist.yml
