@@ -85,7 +85,7 @@ python minilisp.py demo.lisp
 This project stands on the shoulders of giants:
 
 ### Theoretical Foundation
-The implementation follows principles from **[Structure and Interpretation of Computer Programs (SICP)](https://sicp.csail.mit.edu/)** by Abelson, Sussman, and Sussman — the classic textbook that introduced the environment model for interpreters in Chapter 4.
+The implementation follows principles from **[Structure and Interpretation of Computer Programs (SICP)](https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html)** by Abelson, Sussman, and Sussman — the classic textbook that introduced the environment model for interpreters in Chapter 4.
 
 ### Technical Foundation
 **MiniLisp** is a fork of [Peter Norvig's lispy.py](https://norvig.com/lispy.html), extended with significant improvements:
@@ -176,4 +176,4 @@ Contributions are welcome! This is an educational project, so:
 
 - [Peter Norvig's lispy.py](https://norvig.com/lispy.html) — Original inspiration
 - [Mycelium by haabe](https://github.com/haabe/mycelium) — Development methodology framework
-- [Structure and Interpretation of Computer Programs](https://sicp.csail.mit.edu/) — Theoretical foundation (SICP Chapter 4)
+- [Structure and Interpretation of Computer Programs](https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html) — Theoretical foundation (SICP Chapter 4)
