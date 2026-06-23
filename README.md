@@ -105,6 +105,8 @@ The original `lispy.py` is copyright © 2010-2022 Peter Norvig, licensed under t
 ### Development Methodology
 This project was developed using **[Mycelium](https://github.com/haabe/mycelium)** — a theory-guided harness for AI-assisted product development created by **[haabe](https://github.com/haabe)**.
 
+*Note: Mycelium was originally designed for Claude Code, but this project demonstrates its effectiveness with Mistral Vibe as well.*
+
 Mycelium provided:
 - Canvas-based knowledge management (`.claude/canvas/`)
 - Diamond-based work tracking (`.claude/diamonds/`)
