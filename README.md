@@ -103,7 +103,7 @@ The implementation follows principles from **[Structure and Interpretation of Co
 The original `lispy.py` is copyright © 2010-2022 Peter Norvig, licensed under the **MIT License**. MiniLisp maintains the same license.
 
 ### Development Methodology
-This project was developed using **[Mycelium](https://github.com/haabe/mycelium)** — a theory-guided harness for AI-assisted product development.
+This project was developed using **[Mycelium](https://github.com/haabe/mycelium)** — a theory-guided harness for AI-assisted product development created by **[haabe](https://github.com/haabe)**.
 
 Mycelium provided:
 - Canvas-based knowledge management (`.claude/canvas/`)
@@ -111,7 +111,7 @@ Mycelium provided:
 - Decision logging (`.claude/harness/decision-log.md`)
 - Evidence-based development discipline
 
-The development process is fully documented in the Mycelium files included in this repository.
+The development process is fully documented in the Mycelium files included in this repository. All canvas evidence, diamond progress, and decision logs are preserved for transparency.
 
 ## Documentation
 
@@ -175,5 +175,5 @@ Contributions are welcome! This is an educational project, so:
 ## See Also
 
 - [Peter Norvig's lispy.py](https://norvig.com/lispy.html) — Original inspiration
-- [Mycelium framework](https://github.com/haabe/mycelium) — Development methodology
+- [Mycelium by haabe](https://github.com/haabe/mycelium) — Development methodology framework
 - [Structure and Interpretation of Computer Programs](https://sicp.csail.mit.edu/) — Theoretical foundation (SICP Chapter 4)
