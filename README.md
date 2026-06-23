@@ -84,6 +84,9 @@ python minilisp.py demo.lisp
 
 This project stands on the shoulders of giants:
 
+### Theoretical Foundation
+The implementation follows principles from **[Structure and Interpretation of Computer Programs (SICP)](https://sicp.csail.mit.edu/)** by Abelson, Sussman, and Sussman — the classic textbook that introduced the environment model for interpreters in Chapter 4.
+
 ### Technical Foundation
 **MiniLisp** is a fork of [Peter Norvig's lispy.py](https://norvig.com/lispy.html), extended with significant improvements:
 
@@ -121,7 +124,7 @@ The development process is fully documented in the Mycelium files included in th
 No installation required — just clone and run:
 
 ```bash
-git clone https://github.com/dybvig/minilisp.git
+git clone https://github.com/dagfinndybvig/minilisp.git
 cd minilisp
 python minilisp.py
 ```
