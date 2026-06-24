@@ -149,7 +149,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 Copyright © 2026 Dagfinn Døhl Dybvig
 
-This project includes code derived from Peter Norvig's lispy.py (MIT License).
+This project includes code derived from Peter Norvig's lispy.py (MIT License) and the Mycelium framework by haabe (MIT License).
 
 ## Contributing
 
