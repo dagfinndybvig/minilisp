@@ -26,3 +26,6 @@ This project includes code derived from:
 - Peter Norvig's lispy.py (https://norvig.com/lispy.html)
   Copyright (c) 2010-2022 Peter Norvig
   MIT License
+- Mycelium framework by haabe (https://github.com/haabe/mycelium)
+  Copyright (c) 2026 Mycelium Contributors
+  MIT License
