@@ -110,7 +110,7 @@ This project was developed using **[Mycelium](https://github.com/haabe/mycelium)
 
 © 2026 Mycelium Contributors, licensed under the **MIT License**.
 
-*Note: Mycelium was originally designed for Claude Code, but this project demonstrates its effectiveness with Mistral Vibe as well.*
+*Note: Mycelium was originally designed for Claude Code, but this project demonstrates its effectiveness with both Mistral Vibe and GitHub Copilot.*
 
 Mycelium provided:
 - Canvas-based knowledge management (`.claude/canvas/`)
