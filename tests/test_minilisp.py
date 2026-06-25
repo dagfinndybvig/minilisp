@@ -359,6 +359,53 @@ class TestEvalRecursion:
         assert lisp_eval(["fib", 10], global_env) == 55
 
 
+class TestEvalExtendedForms:
+    """Tests for additional language forms added to MiniLisp."""
+
+    @pytest.fixture
+    def global_env(self):
+        env = Env()
+        from minilisp import setup_globals
+        setup_globals(env)
+        return env
+
+    def test_cond(self, global_env):
+        expr = ["cond", [[">", 1, 2], 1], [[">", 2, 1], 2], ["else", 3]]
+        assert lisp_eval(expr, global_env) == 2
+
+    def test_set_bang_updates_existing_binding(self, global_env):
+        global_env["x"] = 1
+        assert lisp_eval(["set!", "x", 2], global_env) is None
+        assert global_env["x"] == 2
+
+    def test_let_star_allows_sequential_bindings(self, global_env):
+        expr = ["let*", [["x", 1], ["y", ["+", "x", 1]]], "y"]
+        assert lisp_eval(expr, global_env) == 2
+
+    def test_let_is_simultaneous(self, global_env):
+        expr = ["let", [["x", 1], ["y", ["+", "x", 1]]], "y"]
+        with pytest.raises(NameError):
+            lisp_eval(expr, global_env)
+
+    def test_letrec_supports_recursive_function(self, global_env):
+        expr = [
+            "letrec",
+            [
+                ["fact", ["lambda", ["n"], ["if", ["<=", "n", 1], 1, ["*", "n", ["fact", ["-", "n", 1]]]]]]
+            ],
+            ["fact", 5]
+        ]
+        assert lisp_eval(expr, global_env) == 120
+
+    def test_variadic_subtract_and_divide(self, global_env):
+        assert lisp_eval(["-", 10, 3, 2], global_env) == 5
+        assert lisp_eval(["/", 24, 2, 2], global_env) == 6.0
+
+    def test_apply_and_map_builtins(self, global_env):
+        assert lisp_eval(["apply", "+", ["quote", [1, 2, 3]]], global_env) == 6
+        assert lisp_eval(["map", ["lambda", ["x"], ["*", "x", "x"]], ["quote", [1, 2, 3]]], global_env) == [1, 4, 9]
+
+
 # =============================================================================
 # INTEGRATION TESTS
 # =============================================================================

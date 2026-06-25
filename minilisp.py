@@ -117,6 +117,24 @@ class Env(dict):
         return dict.__getitem__(found_env, var)
 
 
+def eval_sequence(exprs, env: Env) -> Any:
+    """Evaluate a sequence of expressions, returning the last result."""
+    result = None
+    for expr in exprs:
+        result = eval(expr, env)
+    return result
+
+
+def parse_bindings(bindings: Any) -> List[List[Any]]:
+    """Normalize a binding list into a list of [var, expr] pairs."""
+    if isinstance(bindings, list) and bindings:
+        if isinstance(bindings[0], list) and len(bindings[0]) >= 2 and not isinstance(bindings[0][0], list):
+            return [binding for binding in bindings]
+        if len(bindings) == 2 and not isinstance(bindings[0], list):
+            return [bindings]
+    raise SyntaxError("Invalid bindings")
+
+
 # =============================================================================
 # EVALUATOR
 # =============================================================================
@@ -216,10 +234,7 @@ def eval(expr, env: Env) -> Any:
         elif op == 'begin':
             if not args:
                 return None
-            result = None
-            for arg in args:
-                result = eval(arg, env)
-            return result
+            return eval_sequence(args, env)
         
         # If: (if test conseq [alt])
         elif op == 'if':
@@ -228,6 +243,32 @@ def eval(expr, env: Env) -> Any:
             test, conseq = args[0], args[1]
             alt = args[2] if len(args) == 3 else None
             return eval(conseq if eval(test, env) else alt, env)
+
+        # Cond: (cond (test expr1 expr2 ...) (else expr1 expr2 ...))
+        elif op == 'cond':
+            if not args:
+                return None
+            for clause in args:
+                if not isinstance(clause, list) or not clause:
+                    raise SyntaxError("cond clauses must be non-empty lists")
+                if isinstance(clause[0], str) and clause[0].lower() == 'else':
+                    if len(clause) < 2:
+                        raise SyntaxError("else clause requires a body")
+                    return eval_sequence(clause[1:], env)
+                if eval(clause[0], env):
+                    if len(clause) == 1:
+                        return None
+                    return eval_sequence(clause[1:], env)
+            return None
+        
+        # Set!: (set! var expr)
+        elif op == 'set!':
+            if len(args) != 2 or not isinstance(args[0], str):
+                raise SyntaxError("set! requires a variable name and an expression")
+            var, val_expr = args
+            target_env = env.find(var)
+            target_env[var] = eval(val_expr, env)
+            return None
         
         # And: (and expr1 expr2 ...) -> evaluate left to right, return first false or last
         elif op == 'and':
@@ -256,24 +297,34 @@ def eval(expr, env: Env) -> Any:
             if len(args) == 0:
                 raise SyntaxError("let requires bindings and body")
             
-            # Parse bindings - can be a single binding or list of bindings
-            bindings = args[0]
-            if isinstance(bindings, list) and bindings and isinstance(bindings[0], list):
-                # Multiple bindings: ((var1 expr1) (var2 expr2))
-                binding_list = bindings
-            else:
-                # Single binding: (var expr)
-                binding_list = [bindings]
-            
+            binding_list = parse_bindings(args[0])
             body = args[1:] if len(args) > 1 else []
             
             if not body:
                 raise SyntaxError("let requires a body")
             
-            # Create new environment for the let bindings
             let_env = Env([], [], env)
+            for binding in binding_list:
+                if isinstance(binding, list) and len(binding) >= 2:
+                    var, val_expr = binding[0], binding[1]
+                    let_env[var] = eval(val_expr, env)
+                else:
+                    raise SyntaxError(f"Invalid binding: {binding}")
             
-            # Evaluate bindings
+            return eval_sequence(body, let_env)
+
+        # Let*: (let* ((var expr) ...) body...)
+        elif op == 'let*':
+            if len(args) == 0:
+                raise SyntaxError("let* requires bindings and body")
+            
+            binding_list = parse_bindings(args[0])
+            body = args[1:] if len(args) > 1 else []
+            
+            if not body:
+                raise SyntaxError("let* requires a body")
+            
+            let_env = Env([], [], env)
             for binding in binding_list:
                 if isinstance(binding, list) and len(binding) >= 2:
                     var, val_expr = binding[0], binding[1]
@@ -281,11 +332,34 @@ def eval(expr, env: Env) -> Any:
                 else:
                     raise SyntaxError(f"Invalid binding: {binding}")
             
-            # Evaluate body in the new environment
-            if len(body) == 1:
-                return eval(body[0], let_env)
-            else:
-                return eval(['begin'] + body, let_env)
+            return eval_sequence(body, let_env)
+
+        # Letrec: (letrec ((var expr) ...) body...)
+        elif op == 'letrec':
+            if len(args) == 0:
+                raise SyntaxError("letrec requires bindings and body")
+            
+            binding_list = parse_bindings(args[0])
+            body = args[1:] if len(args) > 1 else []
+            
+            if not body:
+                raise SyntaxError("letrec requires a body")
+            
+            let_env = Env([], [], env)
+            for binding in binding_list:
+                if isinstance(binding, list) and len(binding) >= 2:
+                    var, _ = binding[0], binding[1]
+                    let_env[var] = None
+                else:
+                    raise SyntaxError(f"Invalid binding: {binding}")
+            for binding in binding_list:
+                if isinstance(binding, list) and len(binding) >= 2:
+                    var, val_expr = binding[0], binding[1]
+                    let_env[var] = eval(val_expr, let_env)
+                else:
+                    raise SyntaxError(f"Invalid binding: {binding}")
+            
+            return eval_sequence(body, let_env)
         
         # List: (list expr1 expr2 ...) -> create a list
         elif op == 'list':
@@ -444,9 +518,9 @@ def setup_globals(env: Env):
     env.update({
         # Arithmetic
         '+': lambda *args: sum(args),
-        '-': lambda a, b: a - b,
+        '-': lambda *args: -args[0] if len(args) == 1 else functools.reduce(op.sub, args[1:], args[0]),
         '*': lambda *args: 1 if not args else functools.reduce(op.mul, args, 1),
-        '/': lambda a, b: a / b,
+        '/': lambda *args: 1 / args[0] if len(args) == 1 else functools.reduce(op.truediv, args[1:], args[0]),
         'modulo': lambda a, b: a % b,
         
         # Comparisons
@@ -465,6 +539,8 @@ def setup_globals(env: Env):
         'append': lambda a, b: a + b,
         'length': len,
         'null?': lambda x: x == [],
+        'apply': lambda proc, args: proc(*args),
+        'map': lambda proc, seq: [proc(item) for item in seq],
         
         # Type checking
         'number?': lambda x: isinstance(x, (int, float)),
@@ -549,8 +625,12 @@ Supported forms:
                (define (f x) body)     - define function
   Lambda:       (lambda (x) body)       - anonymous function
   If:           (if test conseq [alt])
+  Cond:         (cond (test expr ...) (else expr ...))
+  Set!:         (set! var expr)         - mutate an existing binding
   Begin:        (begin expr1 expr2 ...) - evaluate all, return last
   Let:          (let ((x 1) (y 2)) body) - local bindings
+  Let*:         (let* ((x 1) (y x)) body) - sequential local bindings
+  Letrec:       (letrec ((f (lambda (n) ...))) body) - recursive bindings
   And/Or:       (and expr ...)          - logical and/or
   List ops:     (list 1 2 3)             - create list
                (car list)               - first element

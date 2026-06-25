@@ -25,10 +25,12 @@ python minilisp.py demo.lisp
 - ✅ Boolean logic (`and`, `or`, `not`)
 - ✅ Function definition (`define`)
 - ✅ Lambda expressions (`lambda`)
-- ✅ Conditional evaluation (`if`)
+- ✅ Conditional evaluation (`if`, `cond`)
+- ✅ Mutation (`set!`)
 - ✅ Lexical scoping with closures
 - ✅ Recursion support
-- ✅ Local bindings (`let`)
+- ✅ Local bindings (`let`, `let*`, `letrec`)
+- ✅ Higher-order helpers (`apply`, `map`)
 - ✅ List operations (`list`, `car`, `cdr`, `cons`, `append`, `length`, `null?`)
 - ✅ Type predicates (`number?`, `symbol?`, `list?`, `function?`)
 - ✅ Quoting (`quote`, `'x`, `'(1 2 3)`)
@@ -42,7 +44,7 @@ python minilisp.py demo.lisp
 - ✅ File execution support
 
 ### Code Quality
-- ✅ 65 comprehensive tests (100% passing)
+- ✅ 72 regression tests (100% passing)
 - ✅ Lisp-style comments (`;` to end of line)
 - ✅ Clear error messages
 - ✅ Proper lexical scoping
@@ -85,19 +87,20 @@ python minilisp.py demo.lisp
 This project stands on the shoulders of giants:
 
 ### Theoretical Foundation
-The implementation follows principles from **[Structure and Interpretation of Computer Programs (SICP)](https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html)** by Abelson, Sussman, and Sussman — the classic textbook that introduced the environment model for interpreters in Chapter 4.
+The implementation follows the same core ideas presented in **[Structure and Interpretation of Computer Programs (SICP)](https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html)** by Abelson, Sussman, and Sussman — especially the environment model for evaluation and the use of lexical scoping in Chapter 4.
 
 ### Technical Foundation
-**MiniLisp** is a fork of [Peter Norvig's lispy.py](https://norvig.com/lispy.html), extended with significant improvements:
+**MiniLisp** is inspired by [Peter Norvig's lispy.py](https://norvig.com/lispy.html), which itself is a compact implementation of the interpreter ideas taught in SICP. MiniLisp follows the same basic structure, but it adds a handful of extra forms and conveniences:
 
-- ✅ Proper lexical scoping (Norvig's original used dynamic scoping)
-- ✅ Comprehensive test suite (65 tests vs. original's minimal testing)
+- ✅ Lexical environment chaining for closures and nested procedures
+- ✅ A regression test suite covering arithmetic, closures, recursion, and newer forms
 - ✅ Pretty-printing with traditional Lisp indentation
 - ✅ Enhanced REPL with commands
 - ✅ File execution support
 - ✅ Lisp-style comment support
 - ✅ Quote shorthand syntax
-- ✅ Improved error handling
+- ✅ Additional special forms such as `cond`, `set!`, `let*`, and `letrec`
+- ✅ Extra helpers such as `apply` and `map`
 - ✅ Extensive documentation
 
 The original `lispy.py` is copyright © 2010-2022 Peter Norvig, licensed under the **MIT License**. MiniLisp maintains the same license.
@@ -121,7 +124,7 @@ The development process is fully documented in the Mycelium files included in th
 
 - **[EXAMPLES.md](EXAMPLES.md)** — 50+ categorized examples covering all features
 - **[demo.lisp](demo.lisp)** — Runnable demo file testing major features
-- **[tests/test_minilisp.py](tests/test_minilisp.py)** — Comprehensive test suite (65 tests)
+- **[tests/test_minilisp.py](tests/test_minilisp.py)** — Regression test suite (72 tests)
 
 ## Installation
 
@@ -143,7 +146,7 @@ Requirements:
 python -m pytest tests/test_minilisp.py -v
 ```
 
-All 65 tests should pass.
+All 72 tests should pass.
 
 ## License
 
