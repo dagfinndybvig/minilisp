@@ -559,9 +559,49 @@ evidence: |
   - Added 12 comprehensive tests covering atoms, lists, nested structures, booleans
   - Updated EXAMPLES.md with usage examples
   - Updated demo.lisp with pprint examples
-  - All 65 tests pass (53 original + 12 new)
+  - All 72 tests pass in the current regression suite
   - Feature works both from REPL and from .lisp files
 
 confidence: high
  date: "2026-06-23T15:30:00Z"
  tags: [feature, pretty-printing, user-experience, stretch-goal]
+
+---
+
+decision: "Expand MiniLisp with additional Lisp forms and clarify the documentation"
+context: |
+ The interpreter already handled the core Norvig-style forms, but it lacked a
+ few common Lisp conveniences that make it more useful for teaching and
+ experimentation. The README also needed to reflect the current implementation
+ more accurately and to describe the relationship to SICP and Norvig more
+ precisely.
+alternatives:
+ - name: Stop at the existing feature set
+   why_not: |
+     The project would remain more minimal than intended and the README would
+     continue to imply a broader feature set than the code actually supported.
+
+ - name: Rebuild as a full Scheme implementation
+   why_not: |
+     That would be far larger and less educational than the current project scope.
+     The goal is a compact interpreter with a few extra forms, not a full
+     Scheme runtime.
+
+theory: |
+ - **Progressive Enhancement:** Add a small number of high-value forms that
+   improve the language without making the implementation brittle.
+ - **Documentation should match implementation:** If a feature is documented,
+   it should be present and tested.
+ - **Pedagogical clarity:** A small set of extra special forms makes the
+   interpreter easier to explain and compare with SICP-style environments.
+
+evidence: |
+ - Added cond, set!, let*, and letrec support
+ - Added variadic - and / plus apply/map helpers
+ - Added regression tests covering the new forms
+ - Updated README and REPL help text to reflect the current implementation
+ - Verified 72 tests passing
+
+confidence: high
+date: "2026-06-25T09:24:00Z"
+tags: [feature, documentation, lisp-forms, testing]

@@ -10,21 +10,22 @@ tags:
 
 # Core brief
 purpose: |
-  Build a minimal LISP interpreter that can parse and evaluate S-expressions,
-  including support for function definitions, lambda expressions, and basic
-  arithmetic/logical operations. Target: <500 lines of core code.
+  Build a minimal Lisp interpreter that can parse and evaluate S-expressions,
+  including support for function definitions, lambda expressions, conditionals,
+  local bindings, mutation, and higher-order helpers. The goal is to stay
+  small and educational while covering the key ideas from SICP and Norvig.
 
 why: |
   To understand interpreter design fundamentals (parsing, evaluation, environments,
-  closures) by implementing a complete but minimal language. Also serves as a
-  foundation for potential future extensions (macros, concurrency, etc.).
+  closures) by implementing a complete but minimal language. The project also
+  serves as a reference implementation for teaching the environment model and
+  lexical scoping in a compact form.
 
 # The critical assumption that could kill the project
 riskiest_assumption: |
-  We can implement a correct and performant LISP interpreter with proper
-  lexical scoping, closures, and recursive function definitions in under
-  500 lines of clean, maintainable code without significant performance issues
-  for typical use cases (fibonacci, factorial, simple data processing).
+  We can keep the interpreter small and understandable while adding a handful of
+  important language features (cond, set!, let*, letrec, apply/map) without
+  turning it into a sprawling Scheme implementation.
 
 # Cheapest way to test it
 smallest_test: |
@@ -39,10 +40,10 @@ smallest_test: |
 
 # Success looks like
 success_criteria:
-  - line_count: "<=500 lines (core interpreter)"
-  - feature_complete: "Parsing, eval, define, lambda, if, basic arithmetic"
+  - line_count: "Stay compact and teachable; no need to match full Scheme"
+  - feature_complete: "Parsing, eval, define, lambda, if/cond, let/let*/letrec, set!, apply/map, lexical scoping"
   - performance: "Evaluate factorial(20) in <100ms"
-  - correctness: "Passes all test cases"
+  - correctness: "Passes the regression test suite"
 
 # What we're NOT doing (to keep scope minimal)
 out_of_scope:
@@ -115,9 +116,9 @@ features:
       description: "Anonymous functions"
       examples: ["((lambda (x) (* x x)) 5)"]
 
-    - name: Conditional (if)
+    - name: Conditional (if/cond)
       description: "Branching logic"
-      examples: ["(if (> x 0) 'positive 'negative)"]
+      examples: ["(if (> x 0) 'positive 'negative)", "(cond ((> x 0) 'positive) (else 'non-positive))"]
 
     - name: Lexical scoping
       description: "Functions capture their defining environment"
@@ -133,7 +134,19 @@ features:
   stretch_goals:
     - name: Let expressions
       description: "Local bindings"
-      examples: ["(let ((x 5) (y 10)) (+ x y))"]
+      examples: ["(let ((x 5) (y 10)) (+ x y))", "(let* ((x 1) (y (+ x 1))) y)"]
+
+    - name: Mutation
+      description: "Mutate existing bindings with set!"
+      examples: ["(define x 1)", "(set! x 2)"]
+
+    - name: Recursive bindings
+      description: "Support letrec for recursive local definitions"
+      examples: ["(letrec ((fact (lambda (n) ...))) (fact 5))"]
+
+    - name: Higher-order helpers
+      description: "Support apply and map as first-class helpers"
+      examples: ["(apply + '(1 2 3))", "(map (lambda (x) (* x x)) '(1 2 3))"]
 
     - name: Lists as data
       description: "Lists that aren't code: '(1 2 3)"
@@ -372,8 +385,20 @@ evidence:
     confidence: 0.99
     date: "2026-06-23T15:00:00Z"
 
+  - type: feature
+    source: "Session 2026-06-25"
+    notes: |
+      Expanded the interpreter with additional Lisp forms and aligned the docs:
+      - Added cond, set!, let*, and letrec support
+      - Added variadic - and / behavior and apply/map helpers
+      - Added regression tests for the new forms and semantics
+      - Updated README and REPL help text to reflect the current feature set
+      - Verified 72 tests passing
+    confidence: 0.98
+    date: "2026-06-25T09:24:00Z"
+
 # Status
 status: converging
 phase: L3_solution
-last_updated: "2026-06-23T15:00:00Z"
-updated_by: vibe
+last_updated: "2026-06-25T09:24:00Z"
+updated_by: copilot

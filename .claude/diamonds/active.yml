@@ -105,6 +105,23 @@ completed_diamonds:
       - canvas/gist.yml (updated evidence)
       - harness/decision-log.md (new decision entry)
 
+- id: minilisp-extended-forms
+  scale: L3
+  phase: converge
+  focus: "Expand language forms and align documentation"
+  priority: medium
+  depends_on: minilisp-polish
+  status: completed
+  completed_at: "2026-06-25T09:24:00Z"
+  outcome: |
+    Added cond, set!, let*, and letrec support; expanded arithmetic semantics
+    for variadic - and /; added apply/map helpers; updated README and REPL help
+    text; and verified 72 tests passing.
+  artifacts:
+    - minilisp.py
+    - tests/test_minilisp.py
+    - README.md
+
 # Next diamond (queued)
 queued_diamonds:
   - id: minilisp-testing
